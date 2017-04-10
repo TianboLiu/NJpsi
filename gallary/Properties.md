@@ -8,4 +8,8 @@
 
 |Constituent|Fraction|Channels|Width|
 |-----------|--------|--------|-----|
-|Λ<sub>c</sub>D<sup>*</sup>|57.6%|  |  |
+|pJ/ψ|57.6%|  |  |
+|Λ<sub>c</sub>D<sup>*</sup>|18.1%|  |  |
+|Σ<sub>c</sub>D<sup>*</sup>|3.0% |  |  |
+|Σ<sub>c</sub><sup>*</sup>D|8.3% |  |  |
+|Σ<sub>c</sub><sup>*</sup>D<sup>*</sup>|13.0% |  |  |
