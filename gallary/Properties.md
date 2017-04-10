@@ -8,5 +8,5 @@
 
 |Constituent|Fraction|Channels|Width| | | |
 |---|---|---|---|---|---|---|---|
-|Λc D*| |   |   |   |   |   |   |
+|Λc D|   |   |   |   |   |   |   |
 
