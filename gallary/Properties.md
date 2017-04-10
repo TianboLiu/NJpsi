@@ -8,4 +8,4 @@
 
 |Constituent|Fraction|Channels|Width|
 |-----------|--------|--------|-----|
-|Λc D
+|Λ<sub>c</sub>D<sup>*</sup>|57.6%|  |  |
