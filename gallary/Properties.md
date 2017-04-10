@@ -6,7 +6,7 @@
 
 (pJ/ψ)
 
-|Constituent|Fraction|Channels|Width| | | |
-|---|---|---|---|---|---|---|---|
-|Λc D|   |   |   |   |   |   |   |
+|Constituent|Fraction|Channels|Width|
+|---|---|---|---|---|
+|Λc D|   |   |   |   |
 
