@@ -149,9 +149,29 @@ double Lparticle::Tau(){
 }
 
 
-
-
 /* particles */
+namespace PARTICLE{
+  //Leptons
+  Lparticle e(0.5109989461e-3, 0.0);
+  Lparticle e$m(0.5109989461e-3, 0.0);
+  Lparticle e$p(0.5109989461e-3, 0.0);
+  Lparticle mu(0.1056583745, 2.1969811e-6, 1);
+  Lparticle mu$m(0.1056583745, 2.1969811e-6, 1);
+  Lparticle mu$p(0.1056583745, 2.1969811e-6, 1);
+  Lparticle tau(1.77686, 2.903e-13, 1);
+  Lparticle tau$m(1.77686, 2.903e-13, 1);
+  Lparticle tau$p(1.77686, 2.903e-13, 1);
+  //Mesons
+  Lparticle pi(0.13957018, 2.6033e-8, 1);
+  Lparticle pi$p(0.13957018, 2.6033e-8, 1);
+  Lparticle pi$m(0.13957018, 2.6033e-8, 1);
+  Lparticle pi$0(0.1349766, 8.52e-17, 1);
+  Lparticle K(0.493677, 1.2380e-8, 1);
+  Lparticle K$p(0.493677, 1.2380e-8, 1);
+  Lparticle K$m(0.493677, 1.2380e-8, 1);
+  Lparticle K$S(0.497614, 0.8954e-10, 1);
+  Lparticle K$L(0.497614, 5.116e-8, 1);
+}
 
 
 #endif
