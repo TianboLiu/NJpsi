@@ -39,9 +39,7 @@ double LPHASE::E1E2Range3(const double * x, const double * par){
   double gamma = (E - E1) / M23;
   double beta = sqrt(E1 * E1 - m1 * m1) / (E - E1);
   double E2max = gamma * (sqrt(m2 * m2 + k * k) + beta * k);
-  double E2min = m2;
-  if (beta > k / sqrt(m2 * m2 + k * k))
-    E2min = gamma * (sqrt(m2 * m2 + k * k) - beta * k);
+  double E2min = gamma * (sqrt(m2 * m2 + k * k) - beta * k);
   return E2max - E2min;
 }
 
