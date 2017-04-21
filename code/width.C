@@ -23,30 +23,38 @@ int main(const int argc, const char * argv[]){
 
   if (opt == 1){
     ifstream input(argv[2]);
-    TString str0, str1, str2, str3, str4;
-    double E, mass[3];
+    TString str0, strN, str1, str2, str3, str4, str5, str6, str7, strbr;
+    double E, mass[7];
     double br, w;
     double free, bind;
     double dE = 0.004;
-    Lparticle parent, child1, child2, child3;
+    Lparticle parent, child1, child2, child3, child4, child5, child6, child7;
     int Nc;
     FILE * fp = fopen("bindingwidth.dat", "w");
-    while (input >> str0 >> str1 >> str2 >> str3 >> str4){
+    while (input >> str0 >> strN >> str1 >> str2 >> str3 >> str4 >> str5 >> str6 >> str7 >> strbr){
       parent = SetParticle(str0);
       child1 = SetParticle(str1);
       child2 = SetParticle(str2);
       child3 = SetParticle(str3);
-      br = str4.Atof() / 100.0;
+      child4 = SetParticle(str4);
+      child5 = SetParticle(str5);
+      child6 = SetParticle(str6);
+      child7 = SetParticle(str7);
+      br = strbr.Atof() / 100.0;
       w = parent.Gamma() * br;
       E = parent.M();
       mass[0] = child1.M();
       mass[1] = child2.M();
       mass[2] = child3.M();
-      if (str3.EqualTo("--")) Nc = 2;
-      else Nc = 3;
-      free = VolumePHS(E, mass, Nc);
-      bind = VolumePHS(E - dE, mass, Nc);
-      fprintf(fp, "%s\t\t%s\t%s\t%s\t%.3f\t%.6f\t%.6f\n", str0.Data(), str1.Data(), str2.Data(), str3.Data(), br * 100.0, w * 1000.0, w * 1000.0 * bind / free);
+      mass[3] = child4.M();
+      mass[4] = child5.M();
+      mass[5] = child6.M();
+      mass[6] = child7.M();
+      cout << mass[0] << " " << mass[1] << " " << mass[2] << " " << mass[3] << " " << mass[4] << " " << mass[5] << " " << mass[6] << endl;
+      Nc = strN.Atoi();
+      free = VPHS(E, mass, Nc);
+      bind = VPHS(E - dE, mass, Nc);
+      fprintf(fp, "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%.3f\t%.6f\t%.6f\n", str0.Data(), strN.Data(), str1.Data(), str2.Data(), str3.Data(), str4.Data(), str5.Data(), str6.Data(), str7.Data(), br * 100.0, w * 1000.0, w * 1000.0 * bind / free);
     }
     fclose(fp);
     input.close();
@@ -78,6 +86,7 @@ Lparticle SetParticle(TString str){
   if (str.EqualTo("p")) return proton;
   if (str.EqualTo("n")) return neutron;
   if (str.EqualTo("Jpsi")) return Jpsi;
+  if (str.EqualTo("etac")) return etac;
   if (str.EqualTo("Lambda")) return Lambda;
   if (str.EqualTo("Lambdac")) return Lambdac;
   if (str.EqualTo("D+")) return D$p;
@@ -89,14 +98,15 @@ Lparticle SetParticle(TString str){
   if (str.EqualTo("Sigma+")) return Sigma$p;
   if (str.EqualTo("Sigma0")) return Sigma$0;
   if (str.EqualTo("Sigma-")) return Sigma$m;
-  if (str.EqualTo("Sigmac++")) return Sigmac$pp;
-  if (str.EqualTo("Sigmac+")) return Sigmac$p;
-  if (str.EqualTo("Sigmac0")) return Sigmac$0;
-  if (str.EqualTo("Sigmac++*")) return Sigmac2520$pp;
-  if (str.EqualTo("Sigmac+*")) return Sigmac2520$p;
-  if (str.EqualTo("Sigmac0*")) return Sigmac2520$0;
+  if (str.EqualTo("Sigc++")) return Sigmac$pp;
+  if (str.EqualTo("Sigc+")) return Sigmac$p;
+  if (str.EqualTo("Sigc0")) return Sigmac$0;
+  if (str.EqualTo("Sigc++*")) return Sigmac2520$pp;
+  if (str.EqualTo("Sigc+*")) return Sigmac2520$p;
+  if (str.EqualTo("Sigc0*")) return Sigmac2520$0;
   if (str.EqualTo("g")) return pi$0;
   if (str.EqualTo("gamma")) return photon;
+  if (str.EqualTo("a1320")) return a1320;
 
 
   return Lparticle(0.0, 0.0);

@@ -189,6 +189,7 @@ namespace PARTICLE{
   Lparticle rho$m(0.77511, 0.1491);
   Lparticle rho$0(0.77526, 0.1478);
   Lparticle phi(1.019461, 4.266e-3);
+  Lparticle a1320(1.3183, 0.110);
   Lparticle K(0.493677, 1.2380e-8, 1);//charged
   Lparticle K$p(0.493677, 1.2380e-8, 1);
   Lparticle K$m(0.493677, 1.2380e-8, 1);

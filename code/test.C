@@ -9,8 +9,9 @@ using namespace PARTICLE;
 
 int main(){
 
-  double mass[3] = {0.493, 1.1, 0.14};
+  double mass[7] = {0.14, 0.14, 0.14, 0.14, 0.14, 0.14, 0.14};
   cout << LPHASE::VolumePHS3(4.6, mass) << endl;
+  cout << LPHASE::VPHS(3.097, mass, 7) << endl;
 
   cout << pi.M() << endl;
 
