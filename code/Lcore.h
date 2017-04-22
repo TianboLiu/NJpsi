@@ -45,7 +45,6 @@ namespace MODEL{
   const double Width = 0.003627;//bound state width
   const double FractionNJpsi = 0.58;//NJpsi component fraction
   const double BrNJpsi = 0.0149;//branch ratio of decay from NJpsi component
-  const double m0 = Mp * MJpsi / (Mp + MJpsi);//reduced mass
 
   ROOT::Math::Interpolator Rr_INTER(300, ROOT::Math::Interpolation::kCSPLINE);
   ROOT::Math::Interpolator Ur_INTER(300, ROOT::Math::Interpolation::kCSPLINE);
@@ -95,17 +94,163 @@ namespace MODEL{
     return N * Ur_INTER.Eval(rfm);//in GeV^1/2
   }
 
+  double FQ_integrand(const double r, void * par){
+    double * k = (double *) par;
+    if (k[0] == 0)
+      return -r * Veff(r) * Ur(r);
+    return -sin(k[0] * r) / k[0] * Veff(r) * Ur(r);
+  }
 
-  int test(){
+  double FQk(double k){
+    ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, 0.0, 1.0e-4);
+    ig.SetFunction(&FQ_integrand, &k);
+    double result = ig.Integral(0.0, 30.0);
+    return result / (4.0 * M_PI);
+  }
+
+  int CalculateFQ(){
+    FILE * fp = fopen("wave/FQ0.dat", "w");
+    double k, fk;
+    for (int i = 0; i < 500; i++){
+      k = i * 0.002;
+      fk = FQk(k);
+      cout << k << "   " << fk << endl;
+      fprintf(fp, "%.6E\t%.6E\n", k, fk);
+    }
+    fclose(fp);
+    return 0;
+  }
+      
+  ROOT::Math::Interpolator FQ_INTER(500, ROOT::Math::Interpolation::kCSPLINE);
+  int SetFQ(){
+    ifstream infile("wave/FQ0.dat");
+    double x[500], y[500];
+    for (int i = 0; i < 500; i++)
+      infile >> x[i] >> y[i];
+    FQ_INTER.SetData(500, x, y);
+    infile.close();
     return 0;
   }
 
+  double FQ(const double k){
+    if (k < 0.0 || k > 0.99)
+      return 0;
+    return FQ_INTER.Eval(k);
+  }
+  
+  double BreitWigner(const double * E, const double * par){
+    return 1.0 / (pow(E[0] * E[0] - Mass * Mass, 2) + E[0] * E[0] * Width * Width) / 25.8032;
+  }
+
+  TF1 TF_fMass("fM", BreitWigner, Mass - 5.0 * Width, Mass + 5.0 * Width, 0);
+
+  int SetMODEL(){
+    SetVeff();
+    SetUr();
+    SetFQ();
+    TF_fMass.SetNpx(1000);
+    return 0;
+  }
 
 }
 
+namespace GOLD{
 
+  const double NA = 197.0;
+  const double ProtonDensity = 79.0 / (4.0 * M_PI * pow(7.3, 3) / 3.0) * pow(Phys::hbar, 3);//GeV^3
 
+  double fMomentum(const double * p0, const double * par = 0){//non-normalized
+    double p = p0[0];//nucleon momentum in Au197 in unit of GeV
+    if (p < 0.0){
+      std::cerr << "Unphysical momentum value in GoldMomentum!" << std::endl;
+      return -1.0;
+    }
+    double A0 = 58.3382;
+    double A2 = 69.2938;
+    double B2 = 7.82756;
+    double result = (A0 + pow(A2 * p, 2)) * exp(-pow(B2 * p, 2));
+    return p * p * result / 0.162508;//Normalized momentum distribution
+  }
+  
+  double fEnergy(const double * E0, const double * par = 0){
+    double E = E0[0];//nucleon missing energy in Au197 in unit of GeV
+    if (E <= 0.0){
+      std::cerr << "Unphysical energy value in GoldEnergy!" << std::endl;
+      return -1.0;
+    }
+    double A1 = 1.73622;
+    double a1 = 3.07375;
+    double b1 = 0.645561;
+    double A2 = 14.1433;
+    double a2 = 0.795058;
+    double result = A1 * atan(A2 * pow(E/0.01, a1)) * exp(-b1 * pow(E/0.01, a2));
+    return result / 0.0433967;//Normalized missing energy distribution
+  }
 
+  TF1 TF_fMomentum("fp", fMomentum, 0.0, 1.0, 0);
+  TF1 TF_fEnergy("fE", fEnergy, 0.0, 0.3, 0);
+ 
+  int SetGOLD(){
+    TF_fMomentum.SetNpx(1000);
+    TF_fEnergy.SetNpx(1000);
+    return 0;
+  }
+
+}
+
+namespace GENERATE{
+
+  TRandom3 random(0);
+  double Weight = 0.0;
+  
+  int NucleonGold(TLorentzVector * P){
+    double p = GOLD::TF_fMomentum.GetRandom();
+    double cth = random.Uniform(-1.0, 1.0);
+    double phi = random.Uniform(-M_PI, M_PI);
+    double dE = GOLD::TF_fEnergy.GetRandom();
+    P->SetXYZT(p * sqrt(1.0 - cth * cth) * cos(phi), p * sqrt(1.0 - cth * cth) * sin(phi), p * cth, sqrt(p * p + Mp * Mp) - dE);
+    return 0;
+  }
+  
+  double BoundStateFormation(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &Weight){//
+    //ki: Jpsi; kf: d
+    const double Md = MODEL::TF_fMass.GetRandom();//bound state mass
+    const double dE = GOLD::TF_fEnergy.GetRandom();//missing energy
+    const double Et = ki[0].E() - dE;
+    const double k = ki[0].P();//Jpsi momentum
+    const double MM = Md * Md + k * k - Et * Et - Mp * Mp;
+    const double cth = random.Uniform(-1.0, 1.0);
+    const double phi = random.Uniform(-M_PI, M_PI);
+    const double a = Et * Et - k * k * cth * cth;
+    const double b = -MM * k * cth;
+    const double c = Et * Et * Mp * Mp - MM * MM / 4.0;
+    const double DD = b * b - 4.0 * a * c;
+    if (DD < 0){
+      weight[0] = 0;
+      return 0;
+    }
+    double p2;
+    if (a * c < 0)
+      p2 = (-b + sqrt(DD)) / (2.0 * a);
+    else
+      p2 = (-b - sqrt(DD)) / (2.0 * a);
+    if (p2 < 0){
+      weight[0] = 0;
+      return 0;
+    }
+    weight[0] = GOLD::fMomentum(&p2);
+    TLorentzVector P2;
+    P2.SetXYZT(p2 * sqrt(1.0 - cth * cth) * cos(phi), p2 * sqrt(1.0 - cth * cth) * sin(phi), p2 * cth, sqrt(Mp * Mp + p2 * p2) - dE);
+    P2.RotateY(ki[0].Theta());
+    P2.RotateZ(ki[0].Phi());
+    const double Q = sqrt( (Md * Md - pow(ki[0].M() + P2.M(), 2)) * (Md * Md - pow(ki[0].M() - P2.M(), 2))) / (2.0 * Md);
+    weight[0] *= pow(MODEL::FQ(Q), 2) * MODEL::FractionNJpsi;
+    kf[0] = ki[0] + P2;
+    weight[0] *= GOLD::ProtonDensity * ki[0].Gamma() / PARTICLE::Jpsi.Gamma();
+    return weight[0];
+  }    
+    
+}
 
 
 
