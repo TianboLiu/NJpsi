@@ -35,7 +35,18 @@
 
 using namespace std;
 
+const double Mp = PARTICLE::proton.M();
+const double MJpsi = PARTICLE::Jpsi.M();
+
 namespace MODEL{
+  
+  const double Eb = 0.004;//binding energy
+  const double Mass = Mp + MJpsi - Eb;//bound state mass
+  const double Width = 0.003627;//bound state width
+  const double FractionNJpsi = 0.58;//NJpsi component fraction
+  const double BrNJpsi = 0.0149;//branch ratio of decay from NJpsi component
+  const double m0 = Mp * MJpsi / (Mp + MJpsi);//reduced mass
+
   ROOT::Math::Interpolator Rr_INTER(300, ROOT::Math::Interpolation::kCSPLINE);
   ROOT::Math::Interpolator Ur_INTER(300, ROOT::Math::Interpolation::kCSPLINE);
   ROOT::Math::Interpolator Veff_INTER(100, ROOT::Math::Interpolation::kCSPLINE);
