@@ -297,6 +297,10 @@ namespace GENERATE{
     TLorentzVector kf1[2];
     double weight1;
     JpsiPhotoproductionGold(ki, kf1, &weight1);//produce Jpsi
+    if (weight1 == 0){
+      weight[0] = 0;
+      return 0;
+    }
     kf[0] = kf1[1];//N'
     double weight2;
     BoundStateFormationGold(&kf1[0], &kf[1], &weight2);//form bound state

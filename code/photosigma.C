@@ -7,7 +7,7 @@ int main(const int argc, const char * argv[]){
   MODEL::SetMODEL();
   GOLD::SetGOLD();
   
-  Long64_t Nsim = 100000000;
+  Long64_t Nsim = 1000000000;
   
   TH1D * h0 = new TH1D("h0", "", 1, 0.0, 2.0);
 
@@ -24,7 +24,7 @@ int main(const int argc, const char * argv[]){
     weight = GENERATE::BoundStatePhotoproductionGold(ki, kf);
     if (weight > 0){
       h0->Fill(1.0, weight);
-      hm->Fill(kf[1].M(), weight);
+      //hm->Fill(kf[1].M(), weight);
     }
   }
 
