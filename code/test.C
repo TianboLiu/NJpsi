@@ -22,11 +22,21 @@ int main(){
   GOLD::SetGOLD();
 
   TLorentzVector ki[2], kf[2];
-  ki[0].SetXYZM(0.0, 0.0, 1.0, PARTICLE::Jpsi.M());
-  ki[1].SetXYZM(0.0, 0.0, 0.0, 196.0 * Mp);
+  ki[0].SetXYZT(0.0, 0.0, 8.8, 8.8);
+  ki[1].SetXYZT(0.0, 0.0, 0.0, Mp);
 
-  for (int i = 0; i < 10; i++){
-    cout << GENERATE::BoundStateFormation(ki, kf) << endl;
+  TLorentzVector kii[2];
+  kii[0].SetXYZM(0, 0, 9.0, MJpsi);
+
+
+  //GENERATE::JpsiPhotoproduction(ki, kf);
+
+  double wt;
+  for (int i = 0; i < 1000; i++){
+    //cout << GENERATE::BoundStateFormationGold(kii, kf) << "\t"  << kf[0].M() << endl;
+    //cout << GENERATE::JpsiPhotoproductionGold(ki, kf) << "\t"  << kf[0].Z() << endl;
+    wt = GENERATE::BoundStatePhotoproductionGold(ki, kf);
+    if (wt > 0) cout << wt << " " << kf[0].M() << " " << kf[1].M() << endl;
   }
 
   return 0;

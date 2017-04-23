@@ -211,8 +211,50 @@ namespace GENERATE{
     P->SetXYZT(p * sqrt(1.0 - cth * cth) * cos(phi), p * sqrt(1.0 - cth * cth) * sin(phi), p * cth, sqrt(p * p + Mp * Mp) - dE);
     return 0;
   }
+
+  double dSigmaJpsi2g(const double * t, const double * s){
+    if (s[0] <= pow(Mp + MJpsi, 2))
+	return 0;
+    const double N2g = 7.5671e-4 / pow(Phys::hbar, 4);//GeV^-4
+    const double RM = MJpsi / Phys::hbar;//unit 1
+    const double x = (2.0 * Mp * MJpsi + MJpsi * MJpsi) / (s[0] - Mp * Mp);
+    const double FF = exp(1.13 * t[0]);
+    return N2g * pow(1.0 - x, 2) * FF / (16.0 * M_PI * RM * RM);//GeV^-4
+  }
+
+  double JpsiPhotoproduction(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &Weight){
+    //ki: gamma, N; kf: Jpsi, N'
+    TLorentzVector Pout = ki[0] + ki[1];//Total
+    const double s = Pout.M2();//c.m. energy square
+    if (s <= pow(MJpsi + Mp, 2)){
+      weight[0] = 0;
+      return 0;
+    }
+    const double q = sqrt( (s - pow(ki[0].M() + ki[1].M(), 2)) * (s - pow(ki[0].M() - ki[1].M(), 2))) / (2.0 * Pout.M());
+    const double Q = sqrt( (s - pow(MJpsi + Mp, 2)) * (s - pow(MJpsi - Mp, 2))) / (2.0 * Pout.M());
+    const double t0 = pow(ki[0].M2() - ki[1].M2() - MJpsi * MJpsi + Mp * Mp, 2) / (4.0 * s) - pow(q - Q, 2);
+    const double t1 = pow(ki[0].M2() - ki[1].M2() - MJpsi * MJpsi + Mp * Mp, 2) / (4.0 * s) - pow(q + Q, 2);
+    const double t = random.Uniform(t1, t0);
+    weight[0] = dSigmaJpsi2g(&t, &s) * (t0 - t1);
+    double theta = asin(sqrt((t0 - t) / (4.0 * q * Q))) * 2.0;
+    double phi = random.Uniform(-M_PI, M_PI);
+    kf[0].SetXYZM(Q * sin(theta) * cos(phi), Q * sin(theta) * sin(phi), Q * cos(theta), MJpsi);
+    kf[0].Boost(Pout.BoostVector());//Jpsi
+    kf[1] = Pout - kf[0];//N'
+    return weight[0];//GeV^-2
+  }
+
+  double JpsiPhotoproductionGold(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &Weight){
+    //ki: gamma; kf: Jpsi, N'
+    TLorentzVector ki1[2];
+    ki1[0] = ki[0];//photon
+    NucleonGold(&ki1[1]);//off-shell nucleon
+    JpsiPhotoproduction(ki1, kf, weight);
+    weight[0] *= GOLD::NA;
+    return weight[0];//GeV^-2 
+  }
   
-  double BoundStateFormation(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &Weight){//
+  double BoundStateFormationGold(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &Weight){//
     //ki: Jpsi; kf: d
     const double Md = MODEL::TF_fMass.GetRandom();//bound state mass
     const double dE = GOLD::TF_fEnergy.GetRandom();//missing energy
@@ -248,7 +290,20 @@ namespace GENERATE{
     kf[0] = ki[0] + P2;
     weight[0] *= GOLD::ProtonDensity * ki[0].Gamma() / PARTICLE::Jpsi.Gamma();
     return weight[0];
-  }    
+  }
+
+  double BoundStatePhotoproductionGold(const TLorentzVector * ki, TLorentzVector * kf, double * weight = &Weight){
+    //ki: gamma; kf: N', d
+    TLorentzVector kf1[2];
+    double weight1;
+    JpsiPhotoproductionGold(ki, kf1, &weight1);//produce Jpsi
+    kf[0] = kf1[1];//N'
+    double weight2;
+    BoundStateFormationGold(&kf1[0], &kf[1], &weight2);//form bound state
+    weight[0] = weight1 * weight2;
+    return weight[0];
+  }
+
     
 }
 
