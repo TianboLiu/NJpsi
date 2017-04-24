@@ -93,7 +93,7 @@ int Plot(const int opt){
     g0->GetXaxis()->SetTitleOffset(1.15);
     g0->GetXaxis()->SetTitleSize(0.06);
     g0->GetXaxis()->SetLabelSize(0.06);
-    g0->GetXaxis()->SetRangeUser(0.0, 3.0);
+    g0->GetXaxis()->SetRangeUser(6.0, 11.0);
     g0->GetYaxis()->SetTitle("#sigma (nb)");
     g0->GetYaxis()->CenterTitle(true);
     g0->GetYaxis()->SetTitleOffset(1.15);
@@ -108,7 +108,38 @@ int Plot(const int opt){
     c0->Print("gallary/photosigma.pdf");
   }
 
-    
+  if (opt == 4){//formation probability
+    ifstream infile("formprobability.txt");
+    double x[46], y[46];
+    TString tmp;
+    for (int i = 0; i < 46; i++){
+      infile >> x[i] >> y[i];
+    }
+    infile.close();
+    TGraph * g0 = new TGraph(46, x, y);
+    g0->SetTitle("");
+    g0->SetLineWidth(2);
+    g0->SetLineColor(4);
+    g0->GetXaxis()->SetTitle("P_{J/#psi} (GeV)");
+    g0->GetXaxis()->CenterTitle(true);
+    g0->GetXaxis()->SetTitleOffset(1.15);
+    g0->GetXaxis()->SetTitleSize(0.06);
+    g0->GetXaxis()->SetLabelSize(0.06);
+    g0->GetXaxis()->SetRangeUser(0.0, 9.0);
+    g0->GetYaxis()->SetTitle("Probability");
+    g0->GetYaxis()->CenterTitle(true);
+    g0->GetYaxis()->SetTitleOffset(1.15);
+    g0->GetYaxis()->SetTitleSize(0.06);
+    g0->GetYaxis()->SetLabelSize(0.06);
+    g0->GetYaxis()->SetNdivisions(6, 0, 0);
+    g0->GetYaxis()->SetRangeUser(1.0e-11, 0.9);
+    TCanvas * c0 = new TCanvas("c0", "", 800, 600);
+    c0->SetLogy();
+    c0->SetLeftMargin(0.15);
+    c0->SetBottomMargin(0.15);
+    g0->DrawClone("AC");
+    c0->Print("gallary/formprobability.pdf");
+  }
 
 
 
